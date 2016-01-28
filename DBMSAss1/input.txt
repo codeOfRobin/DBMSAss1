@@ -1,0 +1,17 @@
+2
+NAME_table
+2
+(name,string,0)
+(entry_num,integer,1)
+2
+(prasoon,201310293)
+(sachin,201350296)
+grade_table
+2
+(entry,string,1)
+(grades,float,0)
+2
+(2013CS10293,8.205)
+(2013CS50296,5.012)
+1
+((name_table,entry_num),(grade_table,entry))

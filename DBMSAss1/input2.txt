@@ -1,0 +1,16 @@
+2
+customer
+3
+(customer_name,string,0)
+(customer_street,string,0)
+(customer_city,string,0)
+1
+Robin,VK,Delhi
+account
+2
+(account_number,int,0)
+(balance,float,0)
+1
+100,1000,Robin
+1
+((customer,customer_name),(account,customer_fullName))

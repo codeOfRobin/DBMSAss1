@@ -56,13 +56,14 @@ def main():
 			for j in range(0, numberOfRecords):
 				dic = {}
 				tup = content[j][1:-1].split(',')
+
 				for k,attr in enumerate(attrNames):
-					if schemas[nameOfTable][attr]["isKey"] == "1" and not(tup[k] in [x[attr] for x in records[nameOfTable]]):
+					if schemas[nameOfTable][attr]["isKey"] == "1" and not(tup[k] in [str(x[attr]) for x in records[nameOfTable]]):
 						dic[attr] = attemptConversion(tup[k],schemas[nameOfTable][attr]["type"])
 					elif schemas[nameOfTable][attr]["isKey"] == "0":
 						dic[attr] = attemptConversion(tup[k],schemas[nameOfTable][attr]["type"])
 					else:
-						print("waht?")
+						raise AssertionError("looks like a primary key record was duplicated,specifically "+ tup[k])
 				records[nameOfTable].append(dic)
 			content = content[numberOfRecords:]
 		numberOfRelations = int(content[0])
@@ -73,7 +74,10 @@ def main():
 			elements = [x for x in re.split(regexPattern,relationString) if x!='']
 			mytuple = tuple(elements)
 			if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
-				print("true")
+				if set([x[mytuple[1]] for x in records[mytuple[0]]]) == set([x[mytuple[3]] for x in records[mytuple[2]]]):
+					print("relation added")
+				else:
+					raise AssertionError("one of the foreign keys doesn't exist in the PK table")
 			else:
 				raise AssertionError("Looks like one of the relations couldn't be created")
 		content = content[numberOfRelations:]

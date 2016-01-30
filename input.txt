@@ -1,14 +1,14 @@
 2
 name_table
 2
-(name,string,0)
-(entry_num,integer,1)
+(name,str,0)
+(entry_num,int,1)
 2
 (prasoon,201310293)
 (sachin,201350296)
 grade_table
 2
-(entry,string,1)
+(entry,str,1)
 (grades,float,0)
 2
 (2013CS10293,8.205)

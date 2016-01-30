@@ -1,5 +1,5 @@
 2
-NAME_table
+name_table
 2
 (name,string,0)
 (entry_num,integer,1)

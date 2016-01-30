@@ -1,8 +1,10 @@
 import sys
 import ast
+import json
+import re
 schemas = {}
 records = {}
-
+relations = {}
 
 def removeFirst(arr):
 	return arr[1:]
@@ -40,5 +42,22 @@ with open(sys.argv[1]) as f:
 				dic[attr] = tup[k]
 			records[nameOfTable].append(dic)
 		content = content[numberOfRecords:]
-print(records)
-print(schemas)
+	numberOfRelations = int(content[0])
+	content = removeFirst(content)
+	print(json.dumps(schemas,sort_keys=True, indent=4))
+	for i in range(0,numberOfRelations):
+		relationString = str(content[i])
+		regexPattern = '|'.join(map(re.escape, ['(',')',',']))
+		elements = [x for x in re.split(regexPattern,relationString) if x!='']
+		mytuple = tuple(elements)
+		print(mytuple)
+		if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
+			print("true")
+		else:
+			raise AssertionError("Looks like one of the relations couldn't be created")
+	content = content[numberOfRelations:]
+
+
+# print(json.dumps(records,sort_keys=True, indent=4))
+# print(json.dumps(schemas,sort_keys=True, indent=4))
+# print(records["NAME_table"][0]["entry_num"])

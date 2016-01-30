@@ -2,6 +2,7 @@ import sys
 import ast
 import json
 import re
+from prettytable import PrettyTable
 schemas = {}
 records = {}
 relations = {}
@@ -74,7 +75,9 @@ def main():
 			elements = [x for x in re.split(regexPattern,relationString) if x!='']
 			mytuple = tuple(elements)
 			if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
-				if set([x[mytuple[1]] for x in records[mytuple[0]]]) == set([x[mytuple[3]] for x in records[mytuple[2]]]):
+				print(set([x[mytuple[1]] for x in records[mytuple[0]]]))
+				print(set([x[mytuple[3]] for x in records[mytuple[2]]]))
+				if set([x[mytuple[3]] for x in records[mytuple[2]]]).issubset([x[mytuple[1]] for x in records[mytuple[0]]]):
 					print("relation added")
 				else:
 					raise AssertionError("one of the foreign keys doesn't exist in the PK table")
@@ -84,6 +87,21 @@ def main():
 	print(json.dumps(records,sort_keys=True, indent=4))
 	print(json.dumps(schemas,sort_keys=True, indent=4))
 	# print(records["NAME_table"][0]["entry_num"])
+	for tableName in schemas.keys():
+		t = PrettyTable([x for x in schemas[tableName].keys()])
+		for row in records[tableName]:
+			t.add_row([row[key] for key in schemas[tableName].keys()])
+		print(t)
 
+	#second part
+	#
+	# with open(sys.argv[2]) as f:
+	# 	content = [x[:-1] for x in f.readlines()]
+	# 	numberOfAttrs = int(content[0])
+	# 	content = removeFirst(content)
+	# 	for j in range(0,numberOfAttrs):
+	# 		tup = content[j][1:-1].split(',')
+	#
+	#
 
 main()

@@ -1,0 +1,4 @@
+3
+(name_table,name)
+(name_table,entry_num)
+(grade_table,grades)

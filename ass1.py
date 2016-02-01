@@ -5,7 +5,7 @@ import re
 from prettytable import PrettyTable
 schemas = {}
 records = {}
-relations = {}
+relations = []
 
 def removeFirst(arr):
 	return arr[1:]
@@ -114,6 +114,7 @@ def main():
 			if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
 				if set([x[mytuple[3]] for x in records[mytuple[2]]]).issubset([x[mytuple[1]] for x in records[mytuple[0]]]):
 					print("relation added")
+					relations.append((mytuple[0],mytuple[2]))
 				else:
 					# raise AssertionError("one of the foreign keys doesn't exist in the PK table")
 					print("invalid")
@@ -128,6 +129,10 @@ def main():
 	# print(json.dumps(records,sort_keys=True, indent=4))
 	# print(json.dumps(schemas,sort_keys=True, indent=4))
 	# print(records["NAME_table"][0]["entry_num"])
+	for relationTuple in relations:
+		if ("invalid" in schemas[relationTuple[0]]) or ("invalid" in schemas[relationTuple[1]]):
+			schemas[relationTuple[0]]["invalid"] = True
+			schemas[relationTuple[1]]["invalid"] = True
 	for tableName in schemas.keys():
 		if "invalid" in schemas[tableName]:
 			pass

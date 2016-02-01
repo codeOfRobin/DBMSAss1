@@ -91,7 +91,7 @@ def main():
 			content = removeFirst(content)
 			for j in range(0, numberOfRecords):
 				dic = {}
-				tup = content[j][1:-1].split(',')
+				tup = content[j].split(',')
 
 				for k,attr in enumerate(attrNames):
 					if schemas[nameOfTable][attr]["isKey"] == "1" and not(tup[k] in [str(x[attr]) for x in records[nameOfTable]]):
@@ -159,6 +159,9 @@ def main():
 		print((tablesInSubschemas))
 		commonAttrs = set.intersection(*([set(list(schemas[x].keys())) for x in schemas.keys()]))
 		print(commonAttrs)
+		if "invalid" in commonAttrs:
+			print("removed invalid")
+			commonAttrs.discard("invalid")
 		if commonAttrs!=set():
 			print("do a join")
 			commonAttr = list(commonAttrs)[0]
@@ -173,13 +176,15 @@ def main():
 			print(t)
 
 		else:
+			print("do a cartesian")
 			cartedTable = records[tablesInSubschemas[0]]
+			print(cartedTable)
 			for table in tablesInSubschemas[1:]:
 				cartedTable = cartTables(cartedTable,records[table])
 			t = PrettyTable([x for x in attrsInSubschemas])
 			for row in cartedTable:
 				t.add_row([row[key] for key in attrsInSubschemas])
 			print(t)
-			print("do a cartesian")
+
 
 main()

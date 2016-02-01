@@ -100,8 +100,10 @@ def main():
 						dic[attr] = attemptConversion(tup[k],schemas[nameOfTable][attr]["type"],nameOfTable)
 					else:
 						print("invalid")
+						print(records)
+						print(schemas)
 						schemas[nameOfTable]["invalid"] = True
-						# raise AssertionError("looks like a primary key record was duplicated,specifically "+ tup[k])
+						raise AssertionError("looks like a primary key record was duplicated,specifically "+ tup[k])
 				records[nameOfTable].append(dic)
 			content = content[numberOfRecords:]
 		numberOfRelations = int(content[0])

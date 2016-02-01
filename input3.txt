@@ -1,24 +1,24 @@
 3
 Passengers
 4
-(P_Id,INTEGER,1 )
-(Flight Number, INTEGER, 0 )
-(Name, STRING, 0 )
-(Special Class, BOOLEAN, 0 )
+(P_Id,INTEGER,1)
+(Flight Number,INTEGER,0)
+(Name,STRING,0)
+(Special Class,BOOLEAN,0)
 5
-1, 364, Harvey Specter,TRUE
-2, 364, Koyal Rana,FALSE
-3, 441, Leonard Hofstader, FALSE
-4, 441, Sheldon Cooper,FALSE
-5, 364, Megan Young,TRUE
+1,364,Harvey Specter,TRUE
+2,364,Koyal Rana,FALSE
+3,441,Leonard Hofstader,FALSE
+4,441,Sheldon Cooper,FALSE
+5,364,Megan Young,TRUE
 Flights
 3
 (Flight Number,INTEGER,1)
-(Source, STRING, 0)
-(Destination, STRING, 0)
+(Source,STRING,0)
+(Destination,STRING,0)
 2
-364, New York, San Francisco
-441, San Jose, Seattle
+364,New York,San Francisco
+441,San Jose,Seattle
 Schedule
 2
 (Flight Number,INTEGER,0)

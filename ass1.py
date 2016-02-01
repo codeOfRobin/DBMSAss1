@@ -11,21 +11,21 @@ def removeFirst(arr):
 	return arr[1:]
 
 def attemptConversion(var, typeToAssign,nameOfTable):
-	if typeToAssign == "int":
+	if typeToAssign == "INTEGER":
 		try:
 		    return int(var)
 		except ValueError:
 			print("invalid")
 			schemas[nameOfTable]["invalid"] = True
 			# raise AssertionError("There's a type mismatch for "+ var)
-	elif typeToAssign == "float":
+	elif typeToAssign == "FLOAT":
 		try:
 		    return float(var)
 		except ValueError:
 			print("invalid")
 			schemas[nameOfTable]["invalid"] = True
 		    # raise AssertionError("There's a type mismatch for "+ var)
-	elif typeToAssign == "str":
+	else:
 		try:
 		    return str(var)
 		except ValueError:

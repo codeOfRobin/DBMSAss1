@@ -2,6 +2,7 @@ import sys
 import ast
 import json
 import re
+from datetime import datetime, date, time
 from prettytable import PrettyTable
 schemas = {}
 records = {}
@@ -18,13 +19,32 @@ def attemptConversion(var, typeToAssign,nameOfTable):
 			print("invalid")
 			schemas[nameOfTable]["invalid"] = True
 			# raise AssertionError("There's a type mismatch for "+ var)
-	elif typeToAssign == "FLOAT":
+	elif typeToAssign == "REAL" or typeToAssign == "FLOAT":
 		try:
 		    return float(var)
 		except ValueError:
 			print("invalid")
 			schemas[nameOfTable]["invalid"] = True
 		    # raise AssertionError("There's a type mismatch for "+ var)
+	elif typeToAssign == "BOOLEAN":
+		if var == "TRUE" or var == "FALSE":
+			return str(var)
+		else:
+			print("invalid")
+			schemas[nameOfTable]["invalid"] = True
+	elif typeToAssign == "DATE":
+		try:
+			datetime.strptime(var,"%m/%d/%y")
+			return str(var)
+		except ValueError as err:
+			print("invalid")
+			schemas[nameOfTable]["invalid"] = True
+	elif typeToAssign == "CURRENCY":
+		if (re.compile("\$\d+").match(var)):
+			return str(var)
+		else:
+			print("invalid")
+			schemas[nameOfTable]["invalid"] = True
 	else:
 		try:
 		    return str(var)
@@ -103,7 +123,7 @@ def main():
 						print(records)
 						print(schemas)
 						schemas[nameOfTable]["invalid"] = True
-						raise AssertionError("looks like a primary key record was duplicated,specifically "+ tup[k])
+						# raise AssertionError("looks like a primary key record was duplicated,specifically "+ tup[k])
 				records[nameOfTable].append(dic)
 			content = content[numberOfRecords:]
 		numberOfRelations = int(content[0])

@@ -163,50 +163,71 @@ def main():
 			for row in records[tableName]:
 				t.add_row([row[key] for key in schemas[tableName].keys()])
 			print(t)
-
+	print(schemas)
 	# second part
-
 	with open(sys.argv[2]) as f:
 		content = [x[:-1] for x in f.readlines()]
 		numberOfAttrs = int(content[0])
 		content = removeFirst(content)
 		attrsInSubschemas = []
 		tablesInSubschemas = []
+		resultTable = []
+		resultTableAttrs = []
 		for j in range(0,numberOfAttrs):
 			tup = content[j][1:-1].split(',')
 			tablesInSubschemas.append(tup[0])
 			attrsInSubschemas.append(tup[1])
-
-		print((attrsInSubschemas))
-		print((tablesInSubschemas))
-		commonAttrs = set.intersection(*([set(list(schemas[x].keys())) for x in schemas.keys()]))
-		print(commonAttrs)
-		if "invalid" in commonAttrs:
-			print("removed invalid")
-			commonAttrs.discard("invalid")
-		if commonAttrs!=set():
-			print("do a join")
-			commonAttr = list(commonAttrs)[0]
-			#assuming : join by one attr. http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.join.html
-			print(commonAttr)
-			joinedTable = records[tablesInSubschemas[0]]
-			for table in tablesInSubschemas[1:]:
-				joinedTable = sqlJoin(joinedTable,records[table],commonAttr)
-			t = PrettyTable([x for x in attrsInSubschemas])
-			for row in joinedTable:
-				t.add_row([row[key] for key in attrsInSubschemas])
-			print(t)
-
-		else:
-			print("do a cartesian")
-			cartedTable = records[tablesInSubschemas[0]]
-			print(cartedTable)
-			for table in tablesInSubschemas[1:]:
-				cartedTable = cartTables(cartedTable,records[table])
-			t = PrettyTable([x for x in attrsInSubschemas])
-			for row in cartedTable:
-				t.add_row([row[key] for key in attrsInSubschemas])
-			print(t)
+			newTable = tup[0]
+			newAttr = tup[1]
+			if len(tablesInSubschemas) == 1 and len(attrsInSubschemas) == 1:
+				resultTable = records[tablesInSubschemas[0]]
+				resultTableAttrs = [col for col in schemas[tablesInSubschemas[0]].keys() ]
+			else:
+				commonAttrs = set(resultTableAttrs).intersection(set([col for col in schemas[newTable].keys()]))
+				if "invalid" in commonAttrs:
+					print("removed invalid")
+					commonAttrs.discard("invalid")
+				if commonAttrs!=set():
+					resultTable = sqlJoin(resultTable,records[newTable],list(commonAttrs)[0])
+					resultTableAttrs = list(set(resultTableAttrs).union(set([col for col in schemas[newTable].keys()])))
+				else:
+					resultTable = cartTables(resultTable,records[newTable])
+					resultTableAttrs = resultTableAttrs.append([col for col in schemas[newTable].keys()])
+		t = PrettyTable([x for x in attrsInSubschemas])
+		for row in resultTable:
+			t.add_row([row[key] for key in attrsInSubschemas])
+		print(t)
+		# print((attrsInSubschemas))
+		# print((tablesInSubschemas))
+		# commonAttrs = set.intersection(*([set(list(schemas[x].keys())) for x in schemas.keys()]))
+		# print(commonAttrs)
+		# if "invalid" in commonAttrs:
+		# 	print("removed invalid")
+		# 	commonAttrs.discard("invalid")
+		#
+		# if commonAttrs!=set():
+		# 	print("do a join")
+		# 	commonAttr = list(commonAttrs)[0]
+		# 	#assuming : join by one attr. http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.join.html
+		# 	print(commonAttr)
+		# 	joinedTable = records[tablesInSubschemas[0]]
+		# 	for table in tablesInSubschemas[1:]:
+		# 		joinedTable = sqlJoin(joinedTable,records[table],commonAttr)
+		# 	t = PrettyTable([x for x in attrsInSubschemas])
+		# 	for row in joinedTable:
+		# 		t.add_row([row[key] for key in attrsInSubschemas])
+		# 	print(t)
+		#
+		# else:
+		# 	print("do a cartesian")
+		# 	cartedTable = records[tablesInSubschemas[0]]
+		# 	print(cartedTable)
+		# 	for table in tablesInSubschemas[1:]:
+		# 		cartedTable = cartTables(cartedTable,records[table])
+		# 	t = PrettyTable([x for x in attrsInSubschemas])
+		# 	for row in cartedTable:
+		# 		t.add_row([row[key] for key in attrsInSubschemas])
+		# 	print(t)
 
 
 main()

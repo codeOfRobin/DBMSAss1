@@ -1,0 +1,3 @@
+2
+(offices,OFFICE_CODE)
+(Activites,NAME)

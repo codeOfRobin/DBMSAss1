@@ -1,0 +1,5 @@
+4
+(orders,CUSTOMER_NO) 
+(orders,ORDER_NO)
+(customers,CUSTOMER_NAME)
+(customers,CUSTOMER_NO)

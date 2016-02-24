@@ -53,11 +53,11 @@ def attemptConversion(var, typeToAssign,nameOfTable):
 			schemas[nameOfTable]["invalid"] = True
 		    # raise AssertionError("There's a type mismatch for "+ var)
 
-def sqlJoin(firstRecords,secondRecords,commonAttr):
+def sqlJoin(firstRecords,secondRecords,commonAttrList):
 	joinedResults = []
 	for record1 in firstRecords:
 		for record2 in secondRecords:
-			if record1[commonAttr] == record2[commonAttr]:
+			if all(x==True for x in [record1[commonAttr] == record2[commonAttr] for commonAttr in commonAttrList]):
 				joinRecord = {}
 				for key in record1.keys():
 					joinRecord[key] = record1[key]
@@ -133,21 +133,25 @@ def main():
 			elements = [x for x in re.split(regexPattern,relationString) if x!='']
 			mytuple = tuple(elements)
 			print(mytuple)
-			if mytuple[0] in schemas.keys() and mytuple[2] in schemas.keys():
-				if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
-					if set([x[mytuple[3]] for x in records[mytuple[2]]]).issubset([x[mytuple[1]] for x in records[mytuple[0]]]):
-						print("relation added")
-						relations.append((mytuple[0],mytuple[2]))
+			if "invalid" in schemas[mytuple[0]] or "invalid" in schemas[mytuple[2]]:
+				schemas[mytuple[0]]["invalid"] = True
+				schemas[mytuple[2]]["invalid"] = True
+			else:
+				if mytuple[0] in schemas.keys() and mytuple[2] in schemas.keys():
+					if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
+						if set([x[mytuple[3]] for x in records[mytuple[2]]]).issubset([x[mytuple[1]] for x in records[mytuple[0]]]):
+							print("relation added")
+							relations.append((mytuple[0],mytuple[2]))
+						else:
+							# raise AssertionError("one of the foreign keys doesn't exist in the PK table")
+							print("invalidness in " + schemas[mytuple[0]] + " and " + schemas[mytuple[0]])
+							schemas[mytuple[0]]["invalid"] = True
+							schemas[mytuple[2]]["invalid"] = True
 					else:
-						# raise AssertionError("one of the foreign keys doesn't exist in the PK table")
-						print("invalidness in " + schemas[mytuple[0]] + " and " + schemas[mytuple[0]])
+						# raise AssertionError("Looks like one of the attrs in the table doesn't exist")
+						print("invalid as attr doesn't exist")
 						schemas[mytuple[0]]["invalid"] = True
 						schemas[mytuple[2]]["invalid"] = True
-				else:
-					# raise AssertionError("Looks like one of the attrs in the table doesn't exist")
-					print("invalid as attr doesn't exist")
-					schemas[mytuple[0]]["invalid"] = True
-					schemas[mytuple[2]]["invalid"] = True
 		content = content[numberOfRelations:]
 	# print(json.dumps(records,sort_keys=True, indent=4))
 	# print(json.dumps(schemas,sort_keys=True, indent=4))
@@ -185,16 +189,22 @@ def main():
 					resultTable = records[tablesInSubschemas[0]]
 					resultTableAttrs = [col for col in schemas[tablesInSubschemas[0]].keys() ]
 				else:
+					print(set(resultTableAttrs))
+					print(set([col for col in schemas[newTable].keys()]))
 					commonAttrs = set(resultTableAttrs).intersection(set([col for col in schemas[newTable].keys()]))
+					print(commonAttrs)
 					if "invalid" in commonAttrs:
 						print("removed invalid")
 						commonAttrs.discard("invalid")
 					if commonAttrs!=set():
-						resultTable = sqlJoin(resultTable,records[newTable],list(commonAttrs)[0])
+						print("nat")
+						resultTable = sqlJoin(resultTable,records[newTable],list(commonAttrs))
 						resultTableAttrs = list(set(resultTableAttrs).union(set([col for col in schemas[newTable].keys()])))
 					else:
+						print("cat")
 						resultTable = cartTables(resultTable,records[newTable])
 						resultTableAttrs = resultTableAttrs.append([col for col in schemas[newTable].keys()])
+		attrsInSubschemas = list(set(attrsInSubschemas))
 		t = PrettyTable([x for x in attrsInSubschemas])
 		for row in resultTable:
 			t.add_row([row[key] for key in attrsInSubschemas])

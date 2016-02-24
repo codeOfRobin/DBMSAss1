@@ -39,9 +39,9 @@ Nisha,swimming,10
 Robin,swimming,10
 Customers
 4
-(CUSTOMER_NUMBER ,INTEGER,1)
+(CUSTOMER_NUMBER,INTEGER,1)
 (CUSTOMER_NAME,STRING,0)
-(CREDIT_LIMIT ,FLOAT,0)
+(CREDIT_LIMIT,FLOAT,0)
 (EMPLOYEE_NO,INTEGER,0)
 5
 10,Mohan,2000000,1
@@ -63,6 +63,6 @@ Employee
 4,Rishi,A004,Ass. Manager,$8000000
 5,Radha,A005,Trainee,$1000000
 3
-((office,OFFICE_CODE),(employee,OFFICE_CODE))
-((employee,EMPLOYEE_NO),(customers,EMPLOYEE_NO))
-((customer,CUSTOMER_NUMBER),(orders,CUSTOMER_NUMBER))
+((Offices,OFFICE_CODE),(Employee,OFFICE_CODE))
+((Employee,EMPLOYEE_NO),(Customers,EMPLOYEE_NO))
+((Customers,CUSTOMER_NUMBER),(Orders,CUSTOMER_NUMBER))

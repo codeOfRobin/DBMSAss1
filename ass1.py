@@ -16,40 +16,40 @@ def attemptConversion(var, typeToAssign,nameOfTable):
 		try:
 		    return int(var)
 		except ValueError:
-			print("invalid")
+			print("invalid" + nameOfTable + "due to types" + typeToAssign)
 			schemas[nameOfTable]["invalid"] = True
 			# raise AssertionError("There's a type mismatch for "+ var)
 	elif typeToAssign == "REAL" or typeToAssign == "FLOAT":
 		try:
 		    return float(var)
 		except ValueError:
-			print("invalid")
+			print("invalid" + nameOfTable + "due to types" + typeToAssign)
 			schemas[nameOfTable]["invalid"] = True
 		    # raise AssertionError("There's a type mismatch for "+ var)
 	elif typeToAssign == "BOOLEAN":
 		if var == "TRUE" or var == "FALSE":
 			return str(var)
 		else:
-			print("invalid")
+			print("invalid" + nameOfTable + "due to types" + typeToAssign)
 			schemas[nameOfTable]["invalid"] = True
 	elif typeToAssign == "DATE":
 		try:
-			datetime.strptime(var,"%m/%d/%y")
+			datetime.strptime(var,"%d/%m/%Y")
 			return str(var)
 		except ValueError as err:
-			print("invalid")
+			print("invalid" + nameOfTable + "due to types" + typeToAssign)
 			schemas[nameOfTable]["invalid"] = True
 	elif typeToAssign == "CURRENCY":
 		if (re.compile("\$\d+").match(var)):
 			return str(var)
 		else:
-			print("invalid")
+			print("invalid" + nameOfTable + "due to types" + typeToAssign)
 			schemas[nameOfTable]["invalid"] = True
 	else:
 		try:
 		    return str(var)
 		except ValueError:
-			print("invalid")
+			print("invalid" + nameOfTable + "due to types" + typeToAssign)
 			schemas[nameOfTable]["invalid"] = True
 		    # raise AssertionError("There's a type mismatch for "+ var)
 
@@ -110,18 +110,17 @@ def main():
 			numberOfRecords = int(content[0])
 			content = removeFirst(content)
 			for j in range(0, numberOfRecords):
+				if "invalid" in schemas[nameOfTable]:
+					break
 				dic = {}
 				tup = content[j].split(',')
-
 				for k,attr in enumerate(attrNames):
 					if schemas[nameOfTable][attr]["isKey"] == "1" and not(tup[k] in [str(x[attr]) for x in records[nameOfTable]]):
 						dic[attr] = attemptConversion(tup[k],schemas[nameOfTable][attr]["type"],nameOfTable)
 					elif schemas[nameOfTable][attr]["isKey"] == "0":
 						dic[attr] = attemptConversion(tup[k],schemas[nameOfTable][attr]["type"],nameOfTable)
 					else:
-						print("invalid")
-						print(records)
-						print(schemas)
+						print("invalid" + nameOfTable + "due to primary key inconsistencies")
 						schemas[nameOfTable]["invalid"] = True
 						# raise AssertionError("looks like a primary key record was duplicated,specifically "+ tup[k])
 				records[nameOfTable].append(dic)
@@ -133,20 +132,22 @@ def main():
 			regexPattern = '|'.join(map(re.escape, ['(',')',',']))
 			elements = [x for x in re.split(regexPattern,relationString) if x!='']
 			mytuple = tuple(elements)
-			if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
-				if set([x[mytuple[3]] for x in records[mytuple[2]]]).issubset([x[mytuple[1]] for x in records[mytuple[0]]]):
-					print("relation added")
-					relations.append((mytuple[0],mytuple[2]))
+			print(mytuple)
+			if mytuple[0] in schemas.keys() and mytuple[2] in schemas.keys():
+				if mytuple[1] in schemas[mytuple[0]].keys() and mytuple[3] in schemas[mytuple[2]].keys():
+					if set([x[mytuple[3]] for x in records[mytuple[2]]]).issubset([x[mytuple[1]] for x in records[mytuple[0]]]):
+						print("relation added")
+						relations.append((mytuple[0],mytuple[2]))
+					else:
+						# raise AssertionError("one of the foreign keys doesn't exist in the PK table")
+						print("invalidness in " + schemas[mytuple[0]] + " and " + schemas[mytuple[0]])
+						schemas[mytuple[0]]["invalid"] = True
+						schemas[mytuple[2]]["invalid"] = True
 				else:
-					# raise AssertionError("one of the foreign keys doesn't exist in the PK table")
-					print("invalid")
+					# raise AssertionError("Looks like one of the attrs in the table doesn't exist")
+					print("invalid as attr doesn't exist")
 					schemas[mytuple[0]]["invalid"] = True
 					schemas[mytuple[2]]["invalid"] = True
-			else:
-				# raise AssertionError("Looks like one of the attrs in the table doesn't exist")
-				print("invalid")
-				schemas[mytuple[0]]["invalid"] = True
-				schemas[mytuple[2]]["invalid"] = True
 		content = content[numberOfRelations:]
 	# print(json.dumps(records,sort_keys=True, indent=4))
 	# print(json.dumps(schemas,sort_keys=True, indent=4))
@@ -179,55 +180,24 @@ def main():
 			attrsInSubschemas.append(tup[1])
 			newTable = tup[0]
 			newAttr = tup[1]
-			if len(tablesInSubschemas) == 1 and len(attrsInSubschemas) == 1:
-				resultTable = records[tablesInSubschemas[0]]
-				resultTableAttrs = [col for col in schemas[tablesInSubschemas[0]].keys() ]
-			else:
-				commonAttrs = set(resultTableAttrs).intersection(set([col for col in schemas[newTable].keys()]))
-				if "invalid" in commonAttrs:
-					print("removed invalid")
-					commonAttrs.discard("invalid")
-				if commonAttrs!=set():
-					resultTable = sqlJoin(resultTable,records[newTable],list(commonAttrs)[0])
-					resultTableAttrs = list(set(resultTableAttrs).union(set([col for col in schemas[newTable].keys()])))
+			if tup[0] in schemas.keys() and tup[1] in schemas[tup[0]].keys():
+				if len(tablesInSubschemas) == 1 and len(attrsInSubschemas) == 1:
+					resultTable = records[tablesInSubschemas[0]]
+					resultTableAttrs = [col for col in schemas[tablesInSubschemas[0]].keys() ]
 				else:
-					resultTable = cartTables(resultTable,records[newTable])
-					resultTableAttrs = resultTableAttrs.append([col for col in schemas[newTable].keys()])
+					commonAttrs = set(resultTableAttrs).intersection(set([col for col in schemas[newTable].keys()]))
+					if "invalid" in commonAttrs:
+						print("removed invalid")
+						commonAttrs.discard("invalid")
+					if commonAttrs!=set():
+						resultTable = sqlJoin(resultTable,records[newTable],list(commonAttrs)[0])
+						resultTableAttrs = list(set(resultTableAttrs).union(set([col for col in schemas[newTable].keys()])))
+					else:
+						resultTable = cartTables(resultTable,records[newTable])
+						resultTableAttrs = resultTableAttrs.append([col for col in schemas[newTable].keys()])
 		t = PrettyTable([x for x in attrsInSubschemas])
 		for row in resultTable:
 			t.add_row([row[key] for key in attrsInSubschemas])
 		print(t)
-		# print((attrsInSubschemas))
-		# print((tablesInSubschemas))
-		# commonAttrs = set.intersection(*([set(list(schemas[x].keys())) for x in schemas.keys()]))
-		# print(commonAttrs)
-		# if "invalid" in commonAttrs:
-		# 	print("removed invalid")
-		# 	commonAttrs.discard("invalid")
-		#
-		# if commonAttrs!=set():
-		# 	print("do a join")
-		# 	commonAttr = list(commonAttrs)[0]
-		# 	#assuming : join by one attr. http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.join.html
-		# 	print(commonAttr)
-		# 	joinedTable = records[tablesInSubschemas[0]]
-		# 	for table in tablesInSubschemas[1:]:
-		# 		joinedTable = sqlJoin(joinedTable,records[table],commonAttr)
-		# 	t = PrettyTable([x for x in attrsInSubschemas])
-		# 	for row in joinedTable:
-		# 		t.add_row([row[key] for key in attrsInSubschemas])
-		# 	print(t)
-		#
-		# else:
-		# 	print("do a cartesian")
-		# 	cartedTable = records[tablesInSubschemas[0]]
-		# 	print(cartedTable)
-		# 	for table in tablesInSubschemas[1:]:
-		# 		cartedTable = cartTables(cartedTable,records[table])
-		# 	t = PrettyTable([x for x in attrsInSubschemas])
-		# 	for row in cartedTable:
-		# 		t.add_row([row[key] for key in attrsInSubschemas])
-		# 	print(t)
-
 
 main()

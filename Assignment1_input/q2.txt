@@ -1,5 +1,5 @@
 4
 (employee, EMPLOYEE_NO)
-(employee,OFFICE_CODE
+(employee,OFFICE_CODE)
 (Activities,STUDENT)
 (Activities,MARKS)

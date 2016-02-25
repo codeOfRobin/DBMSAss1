@@ -168,7 +168,6 @@ def main():
 			for row in records[tableName]:
 				t.add_row([row[key] for key in schemas[tableName].keys()])
 			print(t)
-	print(schemas)
 	# second part
 	with open(sys.argv[2]) as f:
 		content = [x[:-1] for x in f.readlines()]
@@ -179,34 +178,38 @@ def main():
 		resultTable = []
 		resultTableAttrs = []
 		for j in range(0,numberOfAttrs):
+			print("NUMBER" + str(j))
 			tup = content[j][1:-1].split(',')
 			tablesInSubschemas.append(tup[0])
 			attrsInSubschemas.append(tup[1])
 			newTable = tup[0]
 			newAttr = tup[1]
-			if tup[0] in schemas.keys() and tup[1] in schemas[tup[0]].keys():
-				if len(tablesInSubschemas) == 1 and len(attrsInSubschemas) == 1:
-					resultTable = records[tablesInSubschemas[0]]
-					resultTableAttrs = [col for col in schemas[tablesInSubschemas[0]].keys() ]
-				else:
-					print(set(resultTableAttrs))
-					print(set([col for col in schemas[newTable].keys()]))
-					commonAttrs = set(resultTableAttrs).intersection(set([col for col in schemas[newTable].keys()]))
+			if len(tablesInSubschemas) == 1 and len(attrsInSubschemas) == 1:
+				print("FIRST")
+				resultTable = records[tablesInSubschemas[0]]
+				resultTableAttrs = [col for col in schemas[tablesInSubschemas[0]].keys() ]
+				print(resultTableAttrs)
+			else:
+				print(resultTableAttrs)
+				x = set([col for col in schemas[newTable].keys()])
+				y =set(resultTableAttrs)
+				commonAttrs = x.intersection(y)
+				if "invalid" in commonAttrs:
+					print("removed invalid")
+					commonAttrs.discard("invalid")
+				if commonAttrs!=set():
+					print("nat")
 					print(commonAttrs)
-					if "invalid" in commonAttrs:
-						print("removed invalid")
-						commonAttrs.discard("invalid")
-					if commonAttrs!=set():
-						print("nat")
-						resultTable = sqlJoin(resultTable,records[newTable],list(commonAttrs))
-						resultTableAttrs = list(set(resultTableAttrs).union(set([col for col in schemas[newTable].keys()])))
-					else:
-						print("cat")
-						resultTable = cartTables(resultTable,records[newTable])
-						resultTableAttrs = resultTableAttrs.append([col for col in schemas[newTable].keys()])
+					resultTable = sqlJoin(resultTable,records[newTable],list(commonAttrs))
+					resultTableAttrs = list(set(resultTableAttrs).union(set([col for col in schemas[newTable].keys()])))
+				else:
+					print("cat")
+					resultTable = cartTables(resultTable,records[newTable])
+					resultTableAttrs = resultTableAttrs + ([col for col in schemas[newTable].keys()])
 		attrsInSubschemas = list(set(attrsInSubschemas))
 		t = PrettyTable([x for x in attrsInSubschemas])
 		for row in resultTable:
+			print(row)
 			t.add_row([row[key] for key in attrsInSubschemas])
 		print(t)
 

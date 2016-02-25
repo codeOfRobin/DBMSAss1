@@ -1,7 +1,7 @@
 6
-(offices, OFFICE_CODE)
-(offices,CITY)
-(employee,EMPLOYEE_NO)
-(employee,OFFICE_CODE)
-(customer,CUSTOMER_NAME)
-(customer,EMNPLOYEE_NO)
+(Offices,OFFICE_CODE)
+(Offices,CITY)
+(Employee,EMPLOYEE_NO)
+(Employee,OFFICE_CODE)
+(Customers,CUSTOMER_NAME)
+(Customers,EMPLOYEE_NO)

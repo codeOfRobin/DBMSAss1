@@ -1,5 +1,5 @@
 4
-(offices,OFFICE_CODE)
-(employee, EMPLOYEE_NAME)
-(employee,OFFICE_CODE)
-(orders,REACHED)
+(Offices,OFFICE_CODE)
+(Employee,EMPLOYEE_NAME)
+(Employee,OFFICE_CODE)
+(Orders,REACHED)
